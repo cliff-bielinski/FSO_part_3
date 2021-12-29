@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 
+// dummy data set containing contact information for phonebook
 let persons = [
   { 
     "id": 1,
@@ -24,10 +25,23 @@ let persons = [
   }
 ]
 
+// retrieves full contact list of phonebook
 app.get('/api/persons', (request, response) => {
   response.json(persons)
 })
 
+// retrieves total number of contacts in phonebook and current server time
+app.get('/info', (request, response) => {
+  let info = `
+    <div>Phonebook has info for ${persons.length} people</div>
+    <br>
+    <div>${new Date()}</div>
+  `
+
+  response.send(info)
+})
+
+// server runs locally :3001
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

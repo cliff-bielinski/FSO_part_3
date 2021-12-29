@@ -55,6 +55,15 @@ app.get('/info', (request, response) => {
   response.send(info)
 })
 
+// deletes contact of given id from phonebook
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  console.log(`Deleting contact with id: ${id}`)
+  persons = persons.filter(person => person.id !== id)
+
+  response.status(204).end()
+})
+
 // server runs locally on port 3001
 const PORT = 3001
 app.listen(PORT, () => {

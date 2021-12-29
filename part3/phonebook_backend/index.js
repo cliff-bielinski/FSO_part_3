@@ -1,6 +1,13 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
+// generates random ID number
+const generateId = () => {
+  return Math.floor(Math.random() * 1000000)
+}
+
 // dummy data set containing contact information for phonebook
 let persons = [
   { 
@@ -53,6 +60,33 @@ app.get('/info', (request, response) => {
   `
 
   response.send(info)
+})
+
+// adds new contact to phonebook
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+  console.log(body)
+
+  // if incomplete or duplicate contact information posted, return error
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'contact information incomplete'
+    })
+  } else if (persons.some(person => person.name === body.name)) {
+    return response.status(400).json({
+      error: 'contact name must be unique'
+    })
+  }
+
+  personObject = {
+    id: generateId(),
+    name: body.name,
+    number: body.number,
+  }
+
+  persons = persons.concat(personObject)
+
+  response.json(personObject)
 })
 
 // deletes contact of given id from phonebook

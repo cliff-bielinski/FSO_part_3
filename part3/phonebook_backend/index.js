@@ -4,7 +4,12 @@ const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
-app.use(morgan('tiny'))
+
+// HTTP request logging in terminal
+morgan.token('content', (request, response) => {
+  return JSON.stringify(request.body)
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 
 // generates random ID number
 const generateId = () => {

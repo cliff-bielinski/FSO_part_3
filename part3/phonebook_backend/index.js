@@ -1,7 +1,10 @@
 const express = require('express')
+const morgan = require('morgan')
+
 const app = express()
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 // generates random ID number
 const generateId = () => {
@@ -65,7 +68,7 @@ app.get('/info', (request, response) => {
 // adds new contact to phonebook
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  console.log(body)
+  console.log('Attempting to add:', body)
 
   // if incomplete or duplicate contact information posted, return error
   if (!body.name || !body.number) {

@@ -48,23 +48,19 @@ app.get('/info', (request, response) => {
 })
 
 // adds new contact to phonebook
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  console.log('Attempting to add new person...')
-
-  // if incomplete contact information posted, return error
-  if (!body.name || !body.number) {
-    return response.status(400).json({ error: 'contact information incomplete' })
-  } 
 
   person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
 //updates contact of given id in phonebook
@@ -104,6 +100,8 @@ const errorHandler = (error, request, response, next) => {
   console.log(error.message)
   if (error.name === 'CastError'){
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message })
   }
   next(error)
 }

@@ -3,7 +3,7 @@ POST https://intense-headland-44740.herokuapp.com/api/persons/
 Content-Type: application/json
 
 {
-  "name": "Test",
+  "name": "Anna",
   "number": "123-456-7890"
 }
 

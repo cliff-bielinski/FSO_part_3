@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const Person = require('./models/person')
 
 const app = express()
 
@@ -14,63 +16,30 @@ morgan.token('content', (request, response) => {
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 
-// generates random ID number
-const generateId = () => {
-  return Math.floor(Math.random() * 1000000)
-}
-
-// dummy data set containing contact information for phonebook
-let persons = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
 // retrieves full contact list of phonebook
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 // retrieves specific contact for a given id
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  console.log(`Fetching contact with id: ${id}`)
-  const person = persons.find(person => person.id === id)
-  
-  // returns matching contact or 404 if not found
-  if (person) {
+  Person.findById(request.params.id).then(person => {
     response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  })
 })
 
 // retrieves total number of contacts in phonebook and current server time
 app.get('/info', (request, response) => {
-  let info = `
-    <div>Phonebook has info for ${persons.length} people</div>
-    <br>
-    <div>${new Date()}</div>
-  `
-
-  response.send(info)
+  Person.count({}).then(count => {
+    let info = `
+      <div>Phonebook has info for ${count} people</div>
+      <br>
+      <div>${new Date()}</div>
+    `
+    response.send(info)
+  })
 })
 
 // adds new contact to phonebook
@@ -109,8 +78,8 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-// server runs locally on port 3001
-const PORT = process.env.PORT || 3001
+// server runs on port defined in .env
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

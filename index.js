@@ -1,14 +1,13 @@
-require('dotenv').config()
 const express = require('express')
+const app = express()
 const cors = require('cors')
+require('dotenv').config()
 const morgan = require('morgan')
 const Person = require('./models/person')
 
-const app = express()
-
-app.use(express.json())
 app.use(express.static('build'))
 app.use(cors())
+app.use(express.json())
 
 // HTTP request logging in terminal
 morgan.token('content', (request, response) => {
@@ -24,10 +23,16 @@ app.get('/api/persons', (request, response) => {
 })
 
 // retrieves specific contact for a given id
-app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then(person => {
-    response.json(person)
-  })
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 // retrieves total number of contacts in phonebook and current server time
@@ -63,13 +68,31 @@ app.post('/api/persons', (request, response) => {
 })
 
 // deletes contact of given id from phonebook
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  console.log(`Deleting contact with id: ${id}`)
-  persons = persons.filter(person => person.id !== id)
-
-  response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
+
+// unknown endpoint handling
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+// error handling
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message)
+  if (error.name === 'CastError'){
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 
 // server runs on port defined in .env
 const PORT = process.env.PORT

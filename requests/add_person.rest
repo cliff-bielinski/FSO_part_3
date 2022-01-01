@@ -1,10 +1,9 @@
-// POST http://localhost:3001/api/persons/
-POST https://intense-headland-44740.herokuapp.com/api/persons/
+PUT http://localhost:3001/api/persons/61cf57b0b1e7d6c651877a03
 Content-Type: application/json
 
 {
-  "name": "Anna",
-  "number": "123-456-7890"
+  "name": "Benji Bad",
+  "number": "123456789"
 }
 
 ### 

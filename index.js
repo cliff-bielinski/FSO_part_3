@@ -45,28 +45,21 @@ app.get('/info', (request, response) => {
 // adds new contact to phonebook
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  console.log('Attempting to add:', body)
+  console.log('Attempting to add new person...')
 
-  // if incomplete or duplicate contact information posted, return error
+  // if incomplete contact information posted, return error
   if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: 'contact information incomplete'
-    })
-  } else if (persons.some(person => person.name === body.name)) {
-    return response.status(400).json({
-      error: 'contact name must be unique'
-    })
-  }
+    return response.status(400).json({ error: 'contact information incomplete' })
+  } 
 
-  personObject = {
-    id: generateId(),
+  person = new Person({
     name: body.name,
     number: body.number,
-  }
+  })
 
-  persons = persons.concat(personObject)
-
-  response.json(personObject)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 // deletes contact of given id from phonebook
